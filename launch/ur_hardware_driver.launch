@@ -1,0 +1,49 @@
+<launch>
+
+  <rosparam>
+  
+  </rosparam>
+
+  <node pkg="ur_hardware_driver" type="ur_hardware_driver_node" name="ur_hardware_driver" output="screen">
+  <rosparam>
+# Connection parameters
+  umoto_ip : 192.168.1.190
+  umoto_port : 20000
+
+# Convert RAW 
+# Steering encoder readings into rad
+  steering_enc_coeff : 0.52/110.0
+
+# Velocity encoder readings into m/s
+  velocity_enc_coeff : 2.0/400.0
+
+#
+# Joint controllers param
+  steering_controller :
+    type : position_controllers/JointPositionController
+    publish_rate : 50
+    joint: steering_joint
+  velocity_controller :
+    type : velocity_controllers/JointVelocityController
+    publish_rate : 50
+    joint: velocity_joint
+  velocity_state_pub :
+    type : joint_state_controller/JointStateController
+    publish_rate : 50
+    joint: velocity_joint
+  steering_state_pub :
+    type : joint_state_controller/JointStateController
+    publish_rate : 50
+    joint: steering_joint
+  </rosparam>
+  </node>
+
+  <node pkg="controller_manager" type="spawner" name="ur_controller_spawner" respawn="false"
+    args="ur_hardware_driver/steering_controller
+      ur_hardware_driver/velocity_controller
+      ur_hardware_driver/steering_state_pub
+      ur_hardware_driver/velocity_state_pub
+      --shutdown-timeout 1.0
+      " />
+
+</launch>
